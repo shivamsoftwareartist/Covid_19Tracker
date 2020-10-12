@@ -1,23 +1,29 @@
-import React, { useState, useEffect  } from 'react';
+import React, {useState, useEffect} from 'react';
 import { MenuItem, FormControl, Select } from "@material-ui/core";
 
 import './App.css';
 
+// https://disease.sh/v3/covid-19/countries"
 function App() {
-  //STATE = How to write a variable in REACT<<< 
-  const [countries, setCountries] = useState([
-    'USA', 'UK', 'INDIA'
-  ]);
-
-  // https://disease.sh/v3/covid-19/countries
-
-  //USEEFFECT = Runs a piece of code based on a given condition
+  const [countries, setCountries] = useState([]);
 
   useEffect(() => {
-    // The code inside here will run once when the component loads and not again
-    // async -> send a request, wait for it, do something with info
-  },[]); 
+    const getCountriesData = async () => {
+      await fetch ("https://disease.sh/v3/covid-19/countries")
+      .then((response) => response.json())
+      .then((data) => {
+        const countries = data.map((country) =>({
+          name: country.country,
+          value: country.countryInfo.iso2
+        }));
+        
+        setCountries(countries);
+      });
+    };
 
+    getCountriesData();
+  }, []);
+  
   return (
     <div className="app">
       <div className="app__header">
@@ -31,7 +37,7 @@ function App() {
 
             {
               countries.map(country => (
-                <MenuItem value="{country}">{country}</MenuItem>
+                <MenuItem value="{country.value}">{country.name}</MenuItem>
 
               ))
             }
