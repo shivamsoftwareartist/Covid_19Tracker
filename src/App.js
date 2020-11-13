@@ -2,14 +2,24 @@ import React, {useState, useEffect} from 'react';
 import { MenuItem, FormControl, Select, Card, CardContent } from "@material-ui/core";
 import InfoBox from './InfoBox';
 import Map from "./Map";
-
 import './App.css';
+import Table from "./Table";
+import { sortData } from "./util";
 
 // https://disease.sh/v3/covid-19/countries"
 function App() {
   const [countries, setCountries] = useState([]);
   const [country, setCountry] = useState("worldwide");
   const[countryInfo, setCountryInfo] = useState({});
+  const [tableData, setTableData] = useState([]);
+
+  useEffect(() => {
+    fetch("https://disease.sh/v3/covid-19/all")
+    .then(response => response.json())
+    .then(data => {
+      setCountryInfo(data);
+    });
+  }, []);
 
   useEffect(() => {
     const getCountriesData = async () => {
@@ -21,6 +31,8 @@ function App() {
           value: country.countryInfo.iso2,
         }));
         
+        const sortedData = sortData(data);
+        setTableData(sortedData);
         setCountries(countries);
       });
     };
@@ -33,7 +45,7 @@ function App() {
 
     setCountry(countryCode);
 
-    const url = countryCode === "worldwide" ? 'https://disease.sh/v3/covid-19/countries/all' : 
+    const url = countryCode === "worldwide" ? "https://disease.sh/v3/covid-19/countries/all" : 
     `https://disease.sh/v3/covid-19/countries/${countryCode }`;
 
     await fetch(url)
@@ -84,7 +96,7 @@ function App() {
       <Card className="app__right">
         <CardContent>
           <h3>Lives Cases by Country</h3>
-          {/* Table */}
+          <Table countries={tableData} />
           <h3>Worldwide new cases</h3>
           {/* Graph */}
         </CardContent>
